@@ -1,63 +1,63 @@
-import { calculateRouteManually } from "./routeService.js";
-
-const form = document.querySelector("#calculatorForm");
-const historyBody = document.querySelector("#historyBody");
-const offersBody = document.querySelector("#offersBody");
 const storageKey = "operVia.history.v1";
 
+const byId = (id) => document.getElementById(id);
+
 const fields = {
-  manufacturer: document.querySelector("#manufacturer"),
-  model: document.querySelector("#model"),
-  licensePlate: document.querySelector("#licensePlate"),
-  fuelType: document.querySelector("#fuelType"),
-  vehicleConsumption: document.querySelector("#vehicleConsumption"),
-  grossMass: document.querySelector("#grossMass"),
-  axleCount: document.querySelector("#axleCount"),
-  emissionClass: document.querySelector("#emissionClass"),
-  co2Class: document.querySelector("#co2Class"),
-  tollRate: document.querySelector("#tollRate"),
-  customer: document.querySelector("#customer"),
-  startAddress: document.querySelector("#startAddress"),
-  destinationAddress: document.querySelector("#destinationAddress"),
-  totalKm: document.querySelector("#totalKm"),
-  tollKm: document.querySelector("#tollKm"),
-  dieselPrice: document.querySelector("#dieselPrice"),
-  driverWage: document.querySelector("#driverWage"),
-  wearPerKm: document.querySelector("#wearPerKm"),
-  otherCosts: document.querySelector("#otherCosts"),
-  profitMargin: document.querySelector("#profitMargin"),
+  manufacturer: byId("manufacturer"),
+  model: byId("model"),
+  licensePlate: byId("licensePlate"),
+  fuelType: byId("fuelType"),
+  vehicleConsumption: byId("vehicleConsumption"),
+  grossMass: byId("grossMass"),
+  axleCount: byId("axleCount"),
+  emissionClass: byId("emissionClass"),
+  co2Class: byId("co2Class"),
+  tollRate: byId("tollRate"),
+  customer: byId("customer"),
+  startAddress: byId("startAddress"),
+  destinationAddress: byId("destinationAddress"),
+  totalKm: byId("totalKm"),
+  tollKm: byId("tollKm"),
+  dieselPrice: byId("dieselPrice"),
+  driverWage: byId("driverWage"),
+  wearPerKm: byId("wearPerKm"),
+  otherCosts: byId("otherCosts"),
+  profitMargin: byId("profitMargin"),
 };
 
 const outputs = {
-  salePrice: document.querySelector("#salePrice"),
-  fuelCost: document.querySelector("#fuelCost"),
-  tollCost: document.querySelector("#tollCost"),
-  wearCost: document.querySelector("#wearCost"),
-  totalCost: document.querySelector("#totalCost"),
-  profitAmount: document.querySelector("#profitAmount"),
-  marginResult: document.querySelector("#marginResult"),
-  routeStatus: document.querySelector("#routeStatus"),
-  kpiTours: document.querySelector("#kpiTours"),
-  kpiOffers: document.querySelector("#kpiOffers"),
-  kpiRevenue: document.querySelector("#kpiRevenue"),
-  kpiProfit: document.querySelector("#kpiProfit"),
-  analyticsRevenue: document.querySelector("#analyticsRevenue"),
-  analyticsCosts: document.querySelector("#analyticsCosts"),
-  analyticsProfit: document.querySelector("#analyticsProfit"),
+  salePrice: byId("salePrice"),
+  fuelCost: byId("fuelCost"),
+  tollCost: byId("tollCost"),
+  wearCost: byId("wearCost"),
+  totalCost: byId("totalCost"),
+  profitAmount: byId("profitAmount"),
+  marginResult: byId("marginResult"),
+  routeStatus: byId("routeStatus"),
+  kpiTours: byId("kpiTours"),
+  kpiOffers: byId("kpiOffers"),
+  kpiRevenue: byId("kpiRevenue"),
+  kpiProfit: byId("kpiProfit"),
+  analyticsRevenue: byId("analyticsRevenue"),
+  analyticsCosts: byId("analyticsCosts"),
+  analyticsProfit: byId("analyticsProfit"),
 };
 
 const buttons = {
-  reset: document.querySelector("#resetButton"),
-  saveTour: document.querySelector("#saveTourButton"),
-  offer: document.querySelector("#offerButton"),
-  syncToll: document.querySelector("#syncTollButton"),
-  clearHistory: document.querySelector("#clearHistoryButton"),
-  sidebarToggle: document.querySelector("#sidebarToggle"),
+  reset: byId("resetButton"),
+  saveTour: byId("saveTourButton"),
+  offer: byId("offerButton"),
+  syncToll: byId("syncTollButton"),
+  clearHistory: byId("clearHistoryButton"),
 };
 
-const appLayout = document.querySelector("#appLayout");
-const navItems = document.querySelectorAll(".nav-item");
-const pages = document.querySelectorAll(".app-page");
+const navItems = [...document.querySelectorAll(".nav-item")];
+const pages = [...document.querySelectorAll(".app-page")];
+const historyBody = byId("historyBody");
+const offersBody = byId("offersBody");
+const initialValues = new Map();
+
+let latestCalculation = null;
 
 const currency = new Intl.NumberFormat("de-DE", {
   style: "currency",
@@ -69,19 +69,32 @@ const numberFormatter = new Intl.NumberFormat("de-DE", {
 });
 
 const tollRateMatrix = {
-  "Euro 6": { 1: { 3: 30.3, 4: 32.4, 5: 34.8 }, 2: { 3: 29.7, 4: 31.8, 5: 34.0 }, 3: { 3: 29.0, 4: 31.0, 5: 33.2 }, 4: { 3: 24.2, 4: 25.8, 5: 26.9 } },
-  "Euro 5 / EEV": { 1: { 3: 34.4, 4: 36.5, 5: 38.9 }, 2: { 3: 34.4, 4: 36.5, 5: 38.9 }, 3: { 3: 34.4, 4: 36.5, 5: 38.9 }, 4: { 3: 34.4, 4: 36.5, 5: 38.9 } },
-  "Euro 4": { 1: { 3: 36.9, 4: 39.0, 5: 41.4 }, 2: { 3: 36.9, 4: 39.0, 5: 41.4 }, 3: { 3: 36.9, 4: 39.0, 5: 41.4 }, 4: { 3: 36.9, 4: 39.0, 5: 41.4 } },
-  "Euro 3": { 1: { 3: 43.3, 4: 45.4, 5: 47.8 }, 2: { 3: 43.3, 4: 45.4, 5: 47.8 }, 3: { 3: 43.3, 4: 45.4, 5: 47.8 }, 4: { 3: 43.3, 4: 45.4, 5: 47.8 } },
-  "Euro 2": { 1: { 3: 46.6, 4: 48.7, 5: 51.1 }, 2: { 3: 46.6, 4: 48.7, 5: 51.1 }, 3: { 3: 46.6, 4: 48.7, 5: 51.1 }, 4: { 3: 46.6, 4: 48.7, 5: 51.1 } },
-  "Euro 1 / 0": { 1: { 3: 47.1, 4: 49.2, 5: 51.6 }, 2: { 3: 47.1, 4: 49.2, 5: 51.6 }, 3: { 3: 47.1, 4: 49.2, 5: 51.6 }, 4: { 3: 47.1, 4: 49.2, 5: 51.6 } },
+  "Euro 6": {
+    1: { 3: 30.3, 4: 32.4, 5: 34.8 },
+    2: { 3: 29.7, 4: 31.8, 5: 34.0 },
+    3: { 3: 29.0, 4: 31.0, 5: 33.2 },
+    4: { 3: 24.2, 4: 25.8, 5: 26.9 },
+  },
+  "Euro 5 / EEV": { 1: { 3: 34.4, 4: 36.5, 5: 38.9 } },
+  "Euro 4": { 1: { 3: 36.9, 4: 39.0, 5: 41.4 } },
+  "Euro 3": { 1: { 3: 43.3, 4: 45.4, 5: 47.8 } },
+  "Euro 2": { 1: { 3: 46.6, 4: 48.7, 5: 51.1 } },
+  "Euro 1 / 0": { 1: { 3: 47.1, 4: 49.2, 5: 51.6 } },
 };
 
-let latestCalculation = null;
-const initialValues = new Map();
+function setText(element, value) {
+  if (element) {
+    element.textContent = value;
+  }
+}
+
+function fieldValue(field, fallback = "") {
+  return field?.value ?? fallback;
+}
 
 function asNumber(field) {
-  return Number.parseFloat(field.value.replace?.(",", ".") ?? field.value) || 0;
+  const rawValue = String(fieldValue(field, "0")).replace(",", ".");
+  return Number.parseFloat(rawValue) || 0;
 }
 
 function getAxleGroup(axleCount) {
@@ -90,26 +103,55 @@ function getAxleGroup(axleCount) {
   return 5;
 }
 
+function getSafeId() {
+  if (window.crypto?.randomUUID) {
+    return window.crypto.randomUUID();
+  }
+
+  return `id-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+}
+
+function createOfferNumber() {
+  const date = new Date();
+  const stamp = [
+    date.getFullYear(),
+    String(date.getMonth() + 1).padStart(2, "0"),
+    String(date.getDate()).padStart(2, "0"),
+  ].join("");
+
+  return `AN-${stamp}-${String(Date.now()).slice(-5)}`;
+}
+
+function calculateRouteManually(tour) {
+  return {
+    status: "Manuelle Kilometerwerte aktiv",
+    totalKm: tour.totalKm,
+    tollKm: tour.tollKm,
+    startAddress: tour.startAddress,
+    destinationAddress: tour.destinationAddress,
+  };
+}
+
 function readVehicle() {
   return {
-    manufacturer: fields.manufacturer.value.trim(),
-    model: fields.model.value.trim(),
-    licensePlate: fields.licensePlate.value.trim(),
-    fuelType: fields.fuelType.value,
+    manufacturer: fieldValue(fields.manufacturer).trim(),
+    model: fieldValue(fields.model).trim(),
+    licensePlate: fieldValue(fields.licensePlate).trim(),
+    fuelType: fieldValue(fields.fuelType, "Diesel"),
     consumption: asNumber(fields.vehicleConsumption),
     grossMass: asNumber(fields.grossMass),
     axleCount: asNumber(fields.axleCount),
-    emissionClass: fields.emissionClass.value,
-    co2Class: fields.co2Class.value,
+    emissionClass: fieldValue(fields.emissionClass, "Euro 6"),
+    co2Class: fieldValue(fields.co2Class, "1"),
     tollRate: asNumber(fields.tollRate),
   };
 }
 
 function readTour() {
   return {
-    customer: fields.customer.value.trim(),
-    startAddress: fields.startAddress.value.trim(),
-    destinationAddress: fields.destinationAddress.value.trim(),
+    customer: fieldValue(fields.customer).trim(),
+    startAddress: fieldValue(fields.startAddress).trim(),
+    destinationAddress: fieldValue(fields.destinationAddress).trim(),
     totalKm: asNumber(fields.totalKm),
     tollKm: asNumber(fields.tollKm),
     dieselPrice: asNumber(fields.dieselPrice),
@@ -134,30 +176,30 @@ function calculate(vehicle, tour) {
     tollCost,
     wearCost,
     totalCost,
-    salePrice,
     profitAmount,
+    salePrice,
     realizedMargin,
   };
 }
 
-function renderOutputs(calculation) {
-  outputs.salePrice.textContent = currency.format(calculation.salePrice);
-  outputs.fuelCost.textContent = currency.format(calculation.fuelCost);
-  outputs.tollCost.textContent = currency.format(calculation.tollCost);
-  outputs.wearCost.textContent = currency.format(calculation.wearCost);
-  outputs.totalCost.textContent = currency.format(calculation.totalCost);
-  outputs.profitAmount.textContent = currency.format(calculation.profitAmount);
-  outputs.marginResult.textContent = `${numberFormatter.format(calculation.realizedMargin)} %`;
+function renderCalculation(calculation) {
+  setText(outputs.fuelCost, currency.format(calculation.fuelCost));
+  setText(outputs.tollCost, currency.format(calculation.tollCost));
+  setText(outputs.wearCost, currency.format(calculation.wearCost));
+  setText(outputs.totalCost, currency.format(calculation.totalCost));
+  setText(outputs.salePrice, currency.format(calculation.salePrice));
+  setText(outputs.profitAmount, currency.format(calculation.profitAmount));
+  setText(outputs.marginResult, `${numberFormatter.format(calculation.realizedMargin)} %`);
 }
 
-async function updateCalculation() {
+function updateCalculation() {
   const vehicle = readVehicle();
   const tour = readTour();
-  const route = await calculateRouteManually(tour);
+  const route = calculateRouteManually(tour);
   const calculation = calculate(vehicle, tour);
 
   latestCalculation = {
-    id: crypto.randomUUID(),
+    id: getSafeId(),
     date: new Date().toISOString(),
     offerNumber: createOfferNumber(),
     vehicle,
@@ -166,18 +208,11 @@ async function updateCalculation() {
     calculation,
   };
 
-  renderOutputs(calculation);
-  outputs.routeStatus.textContent = `${route.status}: ${numberFormatter.format(route.totalKm)} Gesamt-km, ${numberFormatter.format(route.tollKm)} mautpflichtige km.`;
-}
-
-function createOfferNumber() {
-  const date = new Date();
-  const stamp = [
-    date.getFullYear(),
-    String(date.getMonth() + 1).padStart(2, "0"),
-    String(date.getDate()).padStart(2, "0"),
-  ].join("");
-  return `AN-${stamp}-${String(Date.now()).slice(-5)}`;
+  renderCalculation(calculation);
+  setText(
+    outputs.routeStatus,
+    `${route.status}: ${numberFormatter.format(route.totalKm)} Gesamt-km, ${numberFormatter.format(route.tollKm)} mautpflichtige km.`,
+  );
 }
 
 function getHistory() {
@@ -189,21 +224,33 @@ function getHistory() {
 }
 
 function setHistory(history) {
-  localStorage.setItem(storageKey, JSON.stringify(history));
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(history));
+  } catch {
+    // Local storage can be unavailable in strict browser contexts.
+  }
 }
 
-function saveTour() {
-  if (!latestCalculation) return;
-  const history = getHistory();
-  history.unshift(latestCalculation);
-  setHistory(history.slice(0, 50));
-  renderHistory();
+function renderKpis(history) {
+  const revenue = history.reduce((sum, entry) => sum + entry.calculation.salePrice, 0);
+  const costs = history.reduce((sum, entry) => sum + entry.calculation.totalCost, 0);
+  const profit = history.reduce((sum, entry) => sum + entry.calculation.profitAmount, 0);
+
+  setText(outputs.kpiTours, history.length.toLocaleString("de-DE"));
+  setText(outputs.kpiOffers, history.length.toLocaleString("de-DE"));
+  setText(outputs.kpiRevenue, currency.format(revenue));
+  setText(outputs.kpiProfit, currency.format(profit));
+  setText(outputs.analyticsRevenue, currency.format(revenue));
+  setText(outputs.analyticsCosts, currency.format(costs));
+  setText(outputs.analyticsProfit, currency.format(profit));
 }
 
 function renderHistory() {
   const history = getHistory();
   renderKpis(history);
   renderOffers(history);
+
+  if (!historyBody) return;
 
   if (history.length === 0) {
     historyBody.innerHTML = '<tr><td colspan="7">Noch keine Kalkulation gespeichert.</td></tr>';
@@ -258,54 +305,61 @@ function renderOffers(history) {
     .join("");
 }
 
-function renderKpis(history) {
-  const revenue = history.reduce((sum, entry) => sum + entry.calculation.salePrice, 0);
-  const costs = history.reduce((sum, entry) => sum + entry.calculation.totalCost, 0);
-  const profit = history.reduce((sum, entry) => sum + entry.calculation.profitAmount, 0);
+function saveTour() {
+  updateCalculation();
 
-  outputs.kpiTours.textContent = history.length.toLocaleString("de-DE");
-  outputs.kpiOffers.textContent = history.length.toLocaleString("de-DE");
-  outputs.kpiRevenue.textContent = currency.format(revenue);
-  outputs.kpiProfit.textContent = currency.format(profit);
-  outputs.analyticsRevenue.textContent = currency.format(revenue);
-  outputs.analyticsCosts.textContent = currency.format(costs);
-  outputs.analyticsProfit.textContent = currency.format(profit);
-}
+  if (!latestCalculation) return;
 
-function clearHistory() {
-  localStorage.removeItem(storageKey);
+  const history = getHistory();
+  history.unshift(latestCalculation);
+  setHistory(history.slice(0, 50));
   renderHistory();
 }
 
-function showPage(pageName) {
-  pages.forEach((page) => {
-    page.hidden = page.dataset.page !== pageName;
-    page.classList.toggle("active", !page.hidden);
-  });
-
-  navItems.forEach((navItem) => {
-    const isActive = navItem.dataset.page === pageName;
-    navItem.classList.toggle("active", isActive);
-    if (isActive) {
-      navItem.setAttribute("aria-current", "page");
-    } else {
-      navItem.removeAttribute("aria-current");
-    }
-  });
+function clearHistory() {
+  try {
+    localStorage.removeItem(storageKey);
+  } catch {
+    // Ignore unavailable storage.
+  }
+  renderHistory();
 }
 
 function syncTollRate() {
   const vehicle = readVehicle();
   const axleGroup = getAxleGroup(vehicle.axleCount);
-  const matrixRate = tollRateMatrix[vehicle.emissionClass]?.[vehicle.co2Class]?.[axleGroup];
+  const classRates = tollRateMatrix[vehicle.emissionClass] ?? tollRateMatrix["Euro 6"];
+  const matrixRate = classRates?.[vehicle.co2Class]?.[axleGroup] ?? classRates?.[1]?.[axleGroup];
 
-  if (matrixRate) {
+  if (matrixRate && fields.tollRate) {
     fields.tollRate.value = matrixRate.toFixed(1);
-    updateCalculation();
   }
+
+  updateCalculation();
+}
+
+function showPage(pageName) {
+  pages.forEach((page) => {
+    const isActive = page.dataset.page === pageName;
+    page.hidden = !isActive;
+    page.classList.toggle("active", isActive);
+  });
+
+  navItems.forEach((item) => {
+    const isActive = item.dataset.page === pageName;
+    item.classList.toggle("active", isActive);
+
+    if (isActive) {
+      item.setAttribute("aria-current", "page");
+    } else {
+      item.removeAttribute("aria-current");
+    }
+  });
 }
 
 function createOffer() {
+  updateCalculation();
+
   if (!latestCalculation) return;
 
   const { vehicle, tour, calculation, offerNumber } = latestCalculation;
@@ -368,9 +422,7 @@ function createOffer() {
         </section>
 
         <table>
-          <thead>
-            <tr><th>Position</th><th>Betrag netto</th></tr>
-          </thead>
+          <thead><tr><th>Position</th><th>Betrag netto</th></tr></thead>
           <tbody>
             <tr><td>Dieselkosten</td><td>${currency.format(calculation.fuelCost)}</td></tr>
             <tr><td>Mautkosten</td><td>${currency.format(calculation.tollCost)}</td></tr>
@@ -403,35 +455,37 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-Object.values(fields).forEach((field) => {
-  initialValues.set(field.id, field.value);
-  field.addEventListener("input", updateCalculation);
-  field.addEventListener("change", updateCalculation);
-});
-
-buttons.reset.addEventListener("click", () => {
+function resetInputs() {
   Object.values(fields).forEach((field) => {
-    field.value = initialValues.get(field.id);
+    if (field && initialValues.has(field.id)) {
+      field.value = initialValues.get(field.id);
+    }
   });
-  syncTollRate();
+
   updateCalculation();
-});
-buttons.saveTour.addEventListener("click", saveTour);
-buttons.offer.addEventListener("click", createOffer);
-buttons.syncToll.addEventListener("click", syncTollRate);
-buttons.clearHistory.addEventListener("click", clearHistory);
-buttons.sidebarToggle.addEventListener("click", () => {
-  appLayout.classList.toggle("sidebar-collapsed");
-  const isCollapsed = appLayout.classList.contains("sidebar-collapsed");
-  buttons.sidebarToggle.setAttribute("aria-label", isCollapsed ? "Sidebar ausklappen" : "Sidebar einklappen");
-});
+}
 
-navItems.forEach((item) => {
-  item.addEventListener("click", () => {
-    showPage(item.dataset.page);
+function bindEvents() {
+  Object.values(fields).forEach((field) => {
+    if (!field) return;
+
+    initialValues.set(field.id, field.value);
+    field.addEventListener("input", updateCalculation);
+    field.addEventListener("change", updateCalculation);
   });
-});
 
-syncTollRate();
+  navItems.forEach((item) => {
+    item.addEventListener("click", () => showPage(item.dataset.page));
+  });
+
+  buttons.reset?.addEventListener("click", resetInputs);
+  buttons.saveTour?.addEventListener("click", saveTour);
+  buttons.offer?.addEventListener("click", createOffer);
+  buttons.syncToll?.addEventListener("click", syncTollRate);
+  buttons.clearHistory?.addEventListener("click", clearHistory);
+}
+
+bindEvents();
+updateCalculation();
 renderHistory();
 showPage("dashboard");

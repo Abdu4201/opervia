@@ -17,10 +17,6 @@
           </div>
         </div>
 
-        <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Sidebar einklappen">
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6" /></svg>
-        </button>
-
         <nav class="nav-menu" aria-label="Navigation">
           <button class="nav-item active" type="button" data-page="dashboard" aria-current="page">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h7V4H4v9Zm9 7h7V4h-7v16ZM4 20h7v-5H4v5Z" /></svg>
@@ -82,62 +78,30 @@
             </div>
           </section>
 
-          <section class="dashboard-grid dashboard-page-grid">
-            <aside class="panel results-panel" aria-live="polite">
+          <section class="dashboard-grid">
+            <form class="panel vehicle-panel" id="calculatorForm">
               <div class="panel-heading">
-                <div>
-                  <span class="panel-kicker">Live-Ergebnis</span>
-                  <h2>Aktuelle Tourenkalkulation</h2>
-                </div>
+                <div><span class="panel-kicker">Fahrzeuge</span><h2>Fahrzeugverwaltung</h2></div>
+                <button class="ghost-button" id="syncTollButton" type="button">Mautsatz ableiten</button>
               </div>
+              <div class="form-grid">
+                <label class="field"><span>Hersteller</span><input id="manufacturer" type="text" value="Mercedes-Benz" /></label>
+                <label class="field"><span>Modell</span><input id="model" type="text" value="Actros 1848" /></label>
+                <label class="field"><span>Kennzeichen</span><input id="licensePlate" type="text" value="B-TK 420" /></label>
+                <label class="field"><span>Kraftstoffart</span><select id="fuelType"><option>Diesel</option><option>HVO100</option><option>LNG</option><option>CNG</option><option>Elektro</option><option>Wasserstoff</option></select></label>
+                <label class="field"><span>Verbrauch</span><div class="unit-control"><input id="vehicleConsumption" type="number" min="0" step="0.1" value="27.5" /><strong>l/100 km</strong></div></label>
+                <label class="field"><span>Technisch zul&auml;ssige Gesamtmasse</span><div class="unit-control"><input id="grossMass" type="number" min="0" step="0.1" value="40" /><strong>t</strong></div></label>
+                <label class="field"><span>Achsanzahl</span><select id="axleCount"><option value="2">2 Achsen</option><option value="3">3 Achsen</option><option value="4">4 Achsen</option><option value="5" selected>5 Achsen</option><option value="6">6 Achsen</option></select></label>
+                <label class="field"><span>Euro-/Schadstoffklasse</span><select id="emissionClass"><option selected>Euro 6</option><option>Euro 5 / EEV</option><option>Euro 4</option><option>Euro 3</option><option>Euro 2</option><option>Euro 1 / 0</option></select></label>
+                <label class="field"><span>CO2-Emissionsklasse</span><select id="co2Class"><option value="1" selected>Klasse 1</option><option value="2">Klasse 2</option><option value="3">Klasse 3</option><option value="4">Klasse 4</option></select></label>
+                <label class="field"><span>Fixer Mautsatz</span><div class="unit-control"><input id="tollRate" type="number" min="0" step="0.1" value="34.8" /><strong>ct/km</strong></div></label>
+              </div>
+            </form>
 
-              <div class="price-card">
-                <span>Empfohlener Verkaufspreis netto</span>
-                <output id="salePrice">0,00 EUR</output>
-              </div>
-
-              <div class="metric-grid">
-                <article class="metric"><span>Dieselkosten</span><strong id="fuelCost">0,00 EUR</strong></article>
-                <article class="metric"><span>Mautkosten</span><strong id="tollCost">0,00 EUR</strong></article>
-                <article class="metric"><span>Verschlei&szlig;kosten</span><strong id="wearCost">0,00 EUR</strong></article>
-                <article class="metric"><span>Gesamtkosten</span><strong id="totalCost">0,00 EUR</strong></article>
-                <article class="metric"><span>Gewinnbetrag</span><strong id="profitAmount">0,00 EUR</strong></article>
-                <article class="metric"><span>Gewinnmarge</span><strong id="marginResult">0,0 %</strong></article>
-              </div>
-
-              <div class="route-note">
-                <span>Routen-API vorbereitet</span>
-                <p id="routeStatus">Manuelle Kilometerwerte aktiv. routeService ist bereit f&uuml;r sp&auml;tere API-Anbindung.</p>
-              </div>
-            </aside>
-
-            <section class="panel">
-              <div class="panel-heading">
-                <div>
-                  <span class="panel-kicker">KPIs</span>
-                  <h2>Management-&Uuml;bersicht</h2>
-                </div>
-              </div>
-              <div class="metric-grid">
-                <article class="metric"><span>Gespeicherte Touren</span><strong id="kpiTours">0</strong></article>
-                <article class="metric"><span>Angebote</span><strong id="kpiOffers">0</strong></article>
-                <article class="metric"><span>Umsatz gesamt</span><strong id="kpiRevenue">0,00 EUR</strong></article>
-                <article class="metric"><span>Gewinn gesamt</span><strong id="kpiProfit">0,00 EUR</strong></article>
-              </div>
-            </section>
-          </section>
-        </section>
-
-        <section class="app-page" id="page-touren" data-page="touren" hidden>
-          <section class="dashboard-grid two-column-grid">
             <section class="panel tour-panel">
               <div class="panel-heading">
-                <div>
-                  <span class="panel-kicker">Touren</span>
-                  <h2>Tourenkalkulation</h2>
-                </div>
+                <div><span class="panel-kicker">Touren</span><h2>Tourenkalkulation</h2></div>
               </div>
-
               <div class="form-grid">
                 <label class="field field-wide"><span>Kunde</span><input id="customer" type="text" value="Musterkunde GmbH" /></label>
                 <label class="field"><span>Startadresse</span><input id="startAddress" type="text" value="Hamburg" /></label>
@@ -152,6 +116,55 @@
               </div>
             </section>
 
+            <aside class="dashboard-side">
+              <section class="panel results-panel" aria-live="polite">
+                <div class="panel-heading">
+                  <div>
+                    <span class="panel-kicker">Live-Ergebnis</span>
+                    <h2>Aktuelle Tourenkalkulation</h2>
+                  </div>
+                </div>
+
+                <div class="price-card">
+                  <span>Empfohlener Verkaufspreis netto</span>
+                  <output id="salePrice">0,00 EUR</output>
+                </div>
+
+                <div class="metric-grid">
+                  <article class="metric"><span>Dieselkosten</span><strong id="fuelCost">0,00 EUR</strong></article>
+                  <article class="metric"><span>Mautkosten</span><strong id="tollCost">0,00 EUR</strong></article>
+                  <article class="metric"><span>Verschlei&szlig;kosten</span><strong id="wearCost">0,00 EUR</strong></article>
+                  <article class="metric"><span>Gesamtkosten</span><strong id="totalCost">0,00 EUR</strong></article>
+                  <article class="metric"><span>Gewinnbetrag</span><strong id="profitAmount">0,00 EUR</strong></article>
+                  <article class="metric"><span>Gewinnmarge</span><strong id="marginResult">0,0 %</strong></article>
+                </div>
+
+                <div class="route-note">
+                  <span>Routen-API vorbereitet</span>
+                  <p id="routeStatus">Manuelle Kilometerwerte aktiv. routeService ist bereit f&uuml;r sp&auml;tere API-Anbindung.</p>
+                </div>
+              </section>
+
+              <section class="panel">
+                <div class="panel-heading">
+                  <div>
+                    <span class="panel-kicker">KPIs</span>
+                    <h2>Management-&Uuml;bersicht</h2>
+                  </div>
+                </div>
+                <div class="metric-grid">
+                  <article class="metric"><span>Gespeicherte Touren</span><strong id="kpiTours">0</strong></article>
+                  <article class="metric"><span>Angebote</span><strong id="kpiOffers">0</strong></article>
+                  <article class="metric"><span>Umsatz gesamt</span><strong id="kpiRevenue">0,00 EUR</strong></article>
+                  <article class="metric"><span>Gewinn gesamt</span><strong id="kpiProfit">0,00 EUR</strong></article>
+                </div>
+              </section>
+            </aside>
+          </section>
+        </section>
+
+        <section class="app-page" id="page-touren" data-page="touren" hidden>
+          <section class="dashboard-grid two-column-grid">
             <section class="panel history-panel">
               <div class="panel-heading">
                 <div>
@@ -173,21 +186,13 @@
         </section>
 
         <section class="app-page" id="page-fahrzeuge" data-page="fahrzeuge" hidden>
-          <form class="panel vehicle-panel" id="calculatorForm">
-            <div class="panel-heading"><div><span class="panel-kicker">Fahrzeuge</span><h2>Fahrzeugverwaltung</h2></div></div>
-            <div class="form-grid">
-              <label class="field"><span>Hersteller</span><input id="manufacturer" type="text" value="Mercedes-Benz" /></label>
-              <label class="field"><span>Modell</span><input id="model" type="text" value="Actros 1848" /></label>
-              <label class="field"><span>Kennzeichen</span><input id="licensePlate" type="text" value="B-TK 420" /></label>
-              <label class="field"><span>Kraftstoffart</span><select id="fuelType"><option>Diesel</option><option>HVO100</option><option>LNG</option><option>CNG</option><option>Elektro</option><option>Wasserstoff</option></select></label>
-              <label class="field"><span>Verbrauch</span><div class="unit-control"><input id="vehicleConsumption" type="number" min="0" step="0.1" value="27.5" /><strong>l/100 km</strong></div></label>
-              <label class="field"><span>Technisch zul&auml;ssige Gesamtmasse</span><div class="unit-control"><input id="grossMass" type="number" min="0" step="0.1" value="40" /><strong>t</strong></div></label>
-              <label class="field"><span>Achsanzahl</span><select id="axleCount"><option value="2">2 Achsen</option><option value="3">3 Achsen</option><option value="4">4 Achsen</option><option value="5" selected>5 Achsen</option><option value="6">6 Achsen</option></select></label>
-              <label class="field"><span>Euro-/Schadstoffklasse</span><select id="emissionClass"><option selected>Euro 6</option><option>Euro 5 / EEV</option><option>Euro 4</option><option>Euro 3</option><option>Euro 2</option><option>Euro 1 / 0</option></select></label>
-              <label class="field"><span>CO2-Emissionsklasse</span><select id="co2Class"><option value="1" selected>Klasse 1</option><option value="2">Klasse 2</option><option value="3">Klasse 3</option><option value="4">Klasse 4</option></select></label>
-              <label class="field"><span>Fixer Mautsatz</span><div class="unit-control"><input id="tollRate" type="number" min="0" step="0.1" value="34.8" /><strong>ct/km</strong></div></label>
+          <section class="panel vehicle-panel">
+            <div class="panel-heading"><div><span class="panel-kicker">Fahrzeuge</span><h2>Fahrzeugdaten im Dashboard</h2></div></div>
+            <div class="metric-grid">
+              <article class="metric"><span>Hinweis</span><strong>Die aktive Fahrzeugverwaltung befindet sich im Dashboard.</strong></article>
+              <article class="metric"><span>Berechnung</span><strong>Alle Fahrzeugwerte werden dort live übernommen.</strong></article>
             </div>
-          </form>
+          </section>
         </section>
 
         <section class="app-page" id="page-kunden" data-page="kunden" hidden>
