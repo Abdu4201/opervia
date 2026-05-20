@@ -156,16 +156,20 @@ button {
 }
 
 .nav-item {
+  width: 100%;
   min-height: 48px;
   padding: 0 14px;
   border: 1px solid transparent;
   border-radius: 14px;
   color: var(--muted);
+  background: transparent;
   text-decoration: none;
+  text-align: left;
   display: flex;
   align-items: center;
   gap: 13px;
   font-weight: 800;
+  cursor: pointer;
   transition: color 180ms ease, background 180ms ease, border-color 180ms ease, transform 180ms ease;
 }
 
@@ -222,6 +226,28 @@ button {
   padding: 44px 0 64px;
   display: grid;
   gap: 28px;
+}
+
+.app-page {
+  display: grid;
+  gap: 28px;
+  animation: pageIn 220ms ease both;
+}
+
+.app-page[hidden] {
+  display: none;
+}
+
+@keyframes pageIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .topbar {
@@ -355,6 +381,15 @@ h2 {
   grid-template-columns: minmax(340px, 0.98fr) minmax(390px, 1.18fr) minmax(360px, 0.92fr);
   gap: 28px;
   align-items: start;
+}
+
+.dashboard-page-grid,
+.two-column-grid {
+  grid-template-columns: minmax(420px, 1fr) minmax(360px, 0.82fr);
+}
+
+.analytics-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
 }
 
 .panel {
@@ -633,7 +668,10 @@ tbody tr:hover td {
 }
 
 @media (max-width: 1180px) {
-  .dashboard-grid {
+  .dashboard-grid,
+  .dashboard-page-grid,
+  .two-column-grid,
+  .analytics-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 24px;
   }
@@ -717,6 +755,9 @@ tbody tr:hover td {
 
   .topbar,
   .dashboard-grid,
+  .dashboard-page-grid,
+  .two-column-grid,
+  .analytics-grid,
   .start-card {
     grid-template-columns: 1fr;
   }

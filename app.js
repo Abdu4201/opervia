@@ -2,6 +2,7 @@ import { calculateRouteManually } from "./routeService.js";
 
 const form = document.querySelector("#calculatorForm");
 const historyBody = document.querySelector("#historyBody");
+const offersBody = document.querySelector("#offersBody");
 const storageKey = "operVia.history.v1";
 
 const fields = {
@@ -36,6 +37,13 @@ const outputs = {
   profitAmount: document.querySelector("#profitAmount"),
   marginResult: document.querySelector("#marginResult"),
   routeStatus: document.querySelector("#routeStatus"),
+  kpiTours: document.querySelector("#kpiTours"),
+  kpiOffers: document.querySelector("#kpiOffers"),
+  kpiRevenue: document.querySelector("#kpiRevenue"),
+  kpiProfit: document.querySelector("#kpiProfit"),
+  analyticsRevenue: document.querySelector("#analyticsRevenue"),
+  analyticsCosts: document.querySelector("#analyticsCosts"),
+  analyticsProfit: document.querySelector("#analyticsProfit"),
 };
 
 const buttons = {
@@ -49,6 +57,7 @@ const buttons = {
 
 const appLayout = document.querySelector("#appLayout");
 const navItems = document.querySelectorAll(".nav-item");
+const pages = document.querySelectorAll(".app-page");
 
 const currency = new Intl.NumberFormat("de-DE", {
   style: "currency",
@@ -193,6 +202,8 @@ function saveTour() {
 
 function renderHistory() {
   const history = getHistory();
+  renderKpis(history);
+  renderOffers(history);
 
   if (history.length === 0) {
     historyBody.innerHTML = '<tr><td colspan="7">Noch keine Kalkulation gespeichert.</td></tr>';
@@ -220,9 +231,67 @@ function renderHistory() {
     .join("");
 }
 
+function renderOffers(history) {
+  if (!offersBody) return;
+
+  if (history.length === 0) {
+    offersBody.innerHTML = '<tr><td colspan="6">Noch keine Angebote gespeichert.</td></tr>';
+    return;
+  }
+
+  offersBody.innerHTML = history
+    .map((entry) => {
+      const date = new Date(entry.date).toLocaleDateString("de-DE");
+      const route = `${escapeHtml(entry.tour.startAddress)} &rarr; ${escapeHtml(entry.tour.destinationAddress)}`;
+
+      return `
+        <tr>
+          <td>${date}</td>
+          <td>${escapeHtml(entry.offerNumber)}</td>
+          <td>${escapeHtml(entry.tour.customer)}</td>
+          <td>${route}</td>
+          <td>${currency.format(entry.calculation.salePrice)}</td>
+          <td>${currency.format(entry.calculation.profitAmount)}</td>
+        </tr>
+      `;
+    })
+    .join("");
+}
+
+function renderKpis(history) {
+  const revenue = history.reduce((sum, entry) => sum + entry.calculation.salePrice, 0);
+  const costs = history.reduce((sum, entry) => sum + entry.calculation.totalCost, 0);
+  const profit = history.reduce((sum, entry) => sum + entry.calculation.profitAmount, 0);
+
+  outputs.kpiTours.textContent = history.length.toLocaleString("de-DE");
+  outputs.kpiOffers.textContent = history.length.toLocaleString("de-DE");
+  outputs.kpiRevenue.textContent = currency.format(revenue);
+  outputs.kpiProfit.textContent = currency.format(profit);
+  outputs.analyticsRevenue.textContent = currency.format(revenue);
+  outputs.analyticsCosts.textContent = currency.format(costs);
+  outputs.analyticsProfit.textContent = currency.format(profit);
+}
+
 function clearHistory() {
   localStorage.removeItem(storageKey);
   renderHistory();
+}
+
+function showPage(pageName) {
+  pages.forEach((page) => {
+    page.hidden = page.dataset.page !== pageName;
+    page.classList.toggle("active", !page.hidden);
+  });
+
+  navItems.forEach((navItem) => {
+    const isActive = navItem.dataset.page === pageName;
+    navItem.classList.toggle("active", isActive);
+    if (isActive) {
+      navItem.setAttribute("aria-current", "page");
+    } else {
+      navItem.removeAttribute("aria-current");
+    }
+  });
 }
 
 function syncTollRate() {
@@ -359,14 +428,10 @@ buttons.sidebarToggle.addEventListener("click", () => {
 
 navItems.forEach((item) => {
   item.addEventListener("click", () => {
-    navItems.forEach((navItem) => {
-      navItem.classList.remove("active");
-      navItem.removeAttribute("aria-current");
-    });
-    item.classList.add("active");
-    item.setAttribute("aria-current", "page");
+    showPage(item.dataset.page);
   });
 });
 
 syncTollRate();
 renderHistory();
+showPage("dashboard");
