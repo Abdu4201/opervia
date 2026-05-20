@@ -44,7 +44,11 @@ const buttons = {
   offer: document.querySelector("#offerButton"),
   syncToll: document.querySelector("#syncTollButton"),
   clearHistory: document.querySelector("#clearHistoryButton"),
+  sidebarToggle: document.querySelector("#sidebarToggle"),
 };
+
+const appLayout = document.querySelector("#appLayout");
+const navItems = document.querySelectorAll(".nav-item");
 
 const currency = new Intl.NumberFormat("de-DE", {
   style: "currency",
@@ -347,6 +351,22 @@ buttons.saveTour.addEventListener("click", saveTour);
 buttons.offer.addEventListener("click", createOffer);
 buttons.syncToll.addEventListener("click", syncTollRate);
 buttons.clearHistory.addEventListener("click", clearHistory);
+buttons.sidebarToggle.addEventListener("click", () => {
+  appLayout.classList.toggle("sidebar-collapsed");
+  const isCollapsed = appLayout.classList.contains("sidebar-collapsed");
+  buttons.sidebarToggle.setAttribute("aria-label", isCollapsed ? "Sidebar ausklappen" : "Sidebar einklappen");
+});
+
+navItems.forEach((item) => {
+  item.addEventListener("click", () => {
+    navItems.forEach((navItem) => {
+      navItem.classList.remove("active");
+      navItem.removeAttribute("aria-current");
+    });
+    item.classList.add("active");
+    item.setAttribute("aria-current", "page");
+  });
+});
 
 syncTollRate();
 renderHistory();

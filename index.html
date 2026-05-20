@@ -7,8 +7,56 @@
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
-    <main class="app-shell">
-      <header class="topbar">
+    <div class="app-layout" id="appLayout">
+      <aside class="sidebar" aria-label="Hauptnavigation">
+        <div class="sidebar-brand">
+          <div class="logo-mark sidebar-logo" aria-label="operVia Logo-Platzhalter">oV</div>
+          <div class="brand-copy">
+            <strong>operVia</strong>
+            <span>Transport Suite</span>
+          </div>
+        </div>
+
+        <button class="sidebar-toggle" id="sidebarToggle" type="button" aria-label="Sidebar einklappen">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M15 18l-6-6 6-6" />
+          </svg>
+        </button>
+
+        <nav class="nav-menu" aria-label="Navigation">
+          <a class="nav-item active" href="#dashboard" aria-current="page">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 13h7V4H4v9Zm9 7h7V4h-7v16ZM4 20h7v-5H4v5Z" /></svg>
+            <span>Dashboard</span>
+          </a>
+          <a class="nav-item" href="#touren">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17a3 3 0 1 0 6 0 3 3 0 0 0-6 0Zm8 0a3 3 0 1 0 6 0 3 3 0 0 0-6 0ZM4 7h10v8H4V7Zm10 3h3l3 3v2h-6v-5Z" /></svg>
+            <span>Touren</span>
+          </a>
+          <a class="nav-item" href="#fahrzeuge">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h2l2-5h10l2 5h2v6h-3a2 2 0 0 1-4 0H10a2 2 0 0 1-4 0H3v-6Zm5-3-1.2 3h10.4L16 10H8Z" /></svg>
+            <span>Fahrzeuge</span>
+          </a>
+          <a class="nav-item" href="#kunden">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 12a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm-7 8a7 7 0 0 1 14 0H5Z" /></svg>
+            <span>Kunden</span>
+          </a>
+          <a class="nav-item" href="#angebote">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h9l3 3v15H6V3Zm8 1.5V7h2.5M8 11h8M8 15h8M8 19h5" /></svg>
+            <span>Angebote</span>
+          </a>
+          <a class="nav-item" href="#analytics">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19V5M5 19h15M9 16v-5M13 16V8M17 16v-7" /></svg>
+            <span>Analytics</span>
+          </a>
+          <a class="nav-item" href="#einstellungen">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 8a4 4 0 1 0 4 4 4 4 0 0 0-4-4Zm8 4a8 8 0 0 1-.2 1.8l2 1.5-2 3.4-2.4-1a8 8 0 0 1-3.1 1.8L14 22h-4l-.3-2.5a8 8 0 0 1-3.1-1.8l-2.4 1-2-3.4 2-1.5A8 8 0 0 1 4 12a8 8 0 0 1 .2-1.8l-2-1.5 2-3.4 2.4 1a8 8 0 0 1 3.1-1.8L10 2h4l.3 2.5a8 8 0 0 1 3.1 1.8l2.4-1 2 3.4-2 1.5A8 8 0 0 1 20 12Z" /></svg>
+            <span>Einstellungen</span>
+          </a>
+        </nav>
+      </aside>
+
+      <main class="app-shell" id="dashboard">
+        <header class="topbar">
         <div class="brand-area">
           <div class="logo-mark" aria-label="operVia Logo-Platzhalter">oV</div>
           <div>
@@ -21,7 +69,7 @@
           <button class="ghost-button" id="resetButton" type="button">Zur&uuml;cksetzen</button>
           <button class="primary-button" id="saveTourButton" type="button">Tour speichern</button>
         </div>
-      </header>
+        </header>
 
       <section class="start-card" aria-label="Startscreen">
         <div>
@@ -37,6 +85,7 @@
 
       <section class="dashboard-grid">
         <form class="panel vehicle-panel" id="calculatorForm">
+          <span class="anchor-target" id="fahrzeuge"></span>
           <div class="panel-heading">
             <div>
               <span class="panel-kicker">Modul 1</span>
@@ -131,7 +180,7 @@
           </div>
         </form>
 
-        <section class="panel tour-panel">
+        <section class="panel tour-panel" id="touren">
           <div class="panel-heading">
             <div>
               <span class="panel-kicker">Modul 2</span>
@@ -141,6 +190,7 @@
 
           <div class="form-grid">
             <label class="field field-wide">
+              <span class="anchor-target" id="kunden"></span>
               <span>Kunde</span>
               <input id="customer" type="text" value="Musterkunde GmbH" />
             </label>
@@ -213,7 +263,7 @@
           </div>
         </section>
 
-        <aside class="panel results-panel" aria-live="polite">
+        <aside class="panel results-panel" id="angebote" aria-live="polite">
           <div class="panel-heading">
             <div>
               <span class="panel-kicker">Live-Ergebnis</span>
@@ -259,13 +309,14 @@
           </div>
 
           <div class="route-note">
+            <span class="anchor-target" id="einstellungen"></span>
             <span>Routen-API vorbereitet</span>
             <p id="routeStatus">Manuelle Kilometerwerte aktiv. routeService ist bereit f&uuml;r sp&auml;tere API-Anbindung.</p>
           </div>
         </aside>
       </section>
 
-      <section class="panel history-panel">
+      <section class="panel history-panel" id="analytics">
         <div class="panel-heading">
           <div>
             <span class="panel-kicker">Modul 4</span>
@@ -295,7 +346,8 @@
           </table>
         </div>
       </section>
-    </main>
+      </main>
+    </div>
 
     <script type="module" src="app.js"></script>
   </body>
